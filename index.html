@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="utf-8"/>
+    <title>TD1 - Leaflet</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+    <style>
+        #map {
+            height: 600px;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+
+<h1>EX1 – Géolocalisation</h1>
+<h2>getCurrentPosition()</h2>
+<ul>
+    <li id="gcp-longitude">Longitude : null</li>
+    <li id="gcp-latitude">Latitude : null</li>
+    <li id="gcp-altitude">Altitude : null</li>
+    <li id="gcp-precision">Précision : null</li>
+    <li id="gcp-vitesse">Vitesse : null</li>
+    <li id="gcp-timestamp">Timestamp : null</li>
+</ul>
+
+<h2>watchPosition()</h2>
+<ul>
+    <li id="wp-longitude">Longitude : null</li>
+    <li id="wp-latitude">Latitude : null</li>
+    <li id="wp-altitude">Altitude : null</li>
+    <li id="wp-precision">Précision : null</li>
+    <li id="wp-vitesse">Vitesse : null</li>
+    <li id="wp-timestamp">Timestamp : null</li>
+    <li id="distance-marseille">Distance Marseille : ...</li>
+</ul>
+
+<div id="map"></div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<script>
+// ----------- Variables fixes
+const coords_nice = [43.7, 7.25];
+const coords_marseille = [43.3, 5.4];
+const coords_miami = [25.78, -80.12];
+const coords_sanJuan = [18.45, -66.06];
+const coords_bermudes = [32.32, -64.77];
+
+function distanceHaversine(lat1, lon1, lat2, lon2) {
+    const R = 6371000; // m
+    const toRad = x => x * Math.PI / 180;
+    const dLat = toRad(lat2 - lat1);
+    const dLon = toRad(lon2 - lon1);
+    const a = Math.sin(dLat/2)**2 + Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon/2)**2;
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return R * c;
+}
+
+// ----------- Initialisation carte
+const map = L.map('map');
+
+// Ajout tuiles Stamen (en remplacement OSM)
+L.tileLayer('https://stamen-tiles.a.ssl.fastly.net/toner-lite/{z}/{x}/{y}.png', {
+    attribution: '&copy; <a href="http://maps.stamen.com">Stamen</a> | OSM',
+    maxZoom: 18
+}).addTo(map);
+
+// ----------- getCurrentPosition
+navigator.geolocation.getCurrentPosition(position => {
+    const coords = position.coords;
+    document.getElementById("gcp-longitude").textContent = "Longitude : " + coords.longitude;
+    document.getElementById("gcp-latitude").textContent = "Latitude : " + coords.latitude;
+    document.getElementById("gcp-altitude").textContent = "Altitude : " + coords.altitude;
+    document.getElementById("gcp-precision").textContent = "Précision : " + coords.accuracy;
+    document.getElementById("gcp-vitesse").textContent = "Vitesse : " + coords.speed;
+    document.getElementById("gcp-timestamp").textContent = "Timestamp : " + new Date(position.timestamp).toLocaleString();
+});
+
+// ----------- watchPosition (centrage carte et affichage dynamique)
+navigator.geolocation.watchPosition(position => {
+    const coords = position.coords;
+    const currentPos = [coords.latitude, coords.longitude];
+
+    // Mise à jour EX1
+    document.getElementById("wp-longitude").textContent = "Longitude : " + coords.longitude;
+    document.getElementById("wp-latitude").textContent = "Latitude : " + coords.latitude;
+    document.getElementById("wp-altitude").textContent = "Altitude : " + coords.altitude;
+    document.getElementById("wp-precision").textContent = "Précision : " + coords.accuracy;
+    document.getElementById("wp-vitesse").textContent = "Vitesse : " + coords.speed;
+    document.getElementById("wp-timestamp").textContent = "Timestamp : " + new Date(position.timestamp).toLocaleString();
+
+    // Centrage
+    map.setView(currentPos, 11);
+    
+    // Ajout des tuiles OpenStreetMap
+        L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
+
+    // Marqueur + cercle
+    const marker = L.marker(currentPos).addTo(map).bindPopup("Vous êtes ici").openPopup();
+    L.circle(currentPos, {
+        radius: coords.accuracy,
+        color: 'blue',
+        fillColor: 'blue',
+        fillOpacity: 0.2
+    }).addTo(map);
+
+    // Calcul distance Marseille
+    const dist = distanceHaversine(coords.latitude, coords.longitude, coords_marseille[0], coords_marseille[1]);
+    const km = (dist / 1000).toFixed(2);
+    document.getElementById("distance-marseille").textContent = "Distance Marseille : " + km + " km";
+    marker.bindPopup(`Vous êtes ici<br>Distance Marseille : ${km} km`).openPopup();
+
+    // Itinéraire avec OSRM (vers Nice)
+    fetch(`https://router.project-osrm.org/route/v1/driving/${coords.longitude},${coords.latitude};${coords_nice[1]},${coords_nice[0]}?overview=full&geometries=geojson`)
+        .then(res => res.json())
+        .then(data => {
+            const route = data.routes[0].geometry;
+            L.geoJSON(route, {
+                style: { color: 'purple', weight: 4 }
+            }).addTo(map).bindPopup("Itinéraire vers Nice (OSRM)");
+        });
+});
+
+// ----------- Marqueurs fixes
+L.marker(coords_nice).addTo(map).bindPopup("Nice centre-ville");
+L.marker(coords_marseille).addTo(map).bindPopup("Marseille");
+
+// ----------- Segment Nice ↔ Marseille
+L.polyline([coords_nice, coords_marseille], {
+    color: 'green',
+    weight: 4
+}).addTo(map).bindPopup("Nice ↔ Marseille");
+
+// ----------- Triangle des Bermudes
+L.polygon([coords_miami, coords_sanJuan, coords_bermudes], {
+    color: 'red',
+    weight: 2
+}).addTo(map).bindPopup("Triangle des Bermudes");
+
+// ----------- Ajout GeoJSON (plages à Nice)
+fetch("https://opendata.nicecotedazur.org/data/storage/f/2021-02-16T09%3A58%3A34.356Z/plages.geojson")
+    .then(res => res.json())
+    .then(data => {
+        L.geoJSON(data, {
+            onEachFeature: (feature, layer) => {
+                layer.bindPopup("Plage : " + (feature.properties.nom || "inconnue"));
+            },
+            style: { color: "orange" }
+        }).addTo(map);
+    });
+
+</script>
+</body>
+</html>
