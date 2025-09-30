@@ -101,11 +101,16 @@ function handleOrientation(event) {
 // animations
 function animate() {
 
+  //animate_cube();
+  //animate_model();
+  rotate_();
+
+  renderer.render( scene, camera );
+}
+
+function animate_cube(){
   cube.rotation.x += 0.01;
   cube.rotation.y += 0.01;
-
-  //animate_model();
-  rotate_model();
 
   renderer.render( scene, camera );
 }
@@ -119,13 +124,15 @@ function animate_model(){
   renderer.render( scene, camera );
 }
 
-function rotate_model(){
+function rotate_(){
   if (loadedModel) {
     // Rotation avec le téléphone
     loadedModel.rotation.x = THREE.MathUtils.degToRad(beta);  // inclinaison avant/arrière
     loadedModel.rotation.y = THREE.MathUtils.degToRad(gamma); // gauche/droite
     loadedModel.rotation.z = THREE.MathUtils.degToRad(alpha); // rotation compas
   }
+  cube.rotation.x = THREE.MathUtils.degToRad(beta);
+  cube.rotation.y = THREE.MathUtils.degToRad(gamma);  
 
   renderer.render(scene, camera);
 }
