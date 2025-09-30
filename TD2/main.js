@@ -1,9 +1,6 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 
-
-//import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
-
 // création scène
 const scene = new THREE.Scene();
 
@@ -13,51 +10,82 @@ const camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.inner
 // création renderer
 const renderer = new THREE.WebGLRenderer();
 renderer.setSize( window.innerWidth, window.innerHeight );
-
 document.body.appendChild( renderer.domElement );
-
-// création texture
-const texture_loader = new THREE.TextureLoader();
-const texture = texture_loader.load( 'ressources/images/meowl.jpg' );
-const texture_bg = texture_loader.load('ressources/images/background_gravier.jpg');
-texture.colorSpace = THREE.SRGBColorSpace;
-
-
-scene.background = texture_bg;
-
-
-// création cube
-const geometry = new THREE.BoxGeometry( 1, 1, 1 );
-const material = new THREE.MeshStandardMaterial( { /*color: 0x1f801f,*/ map: texture } );
-const cube = new THREE.Mesh( geometry, material );
-scene.add( cube );
-
-// création lumière
-const color = 0xffffff;
-const intensity = 3;
-const light = new THREE.DirectionalLight(color, intensity);
-light.position.set(-1, 2, 4);
-scene.add(light);
 
 // positionnement caméra
 camera.position.z = 5;
 
+// création de particules (ciel etoilé ici)
+function ciel_etoile(){
+  // Créer une géométrie de particules
+  const particleCount = 1000;
+  const positions = [];
+
+  for (let i = 0; i < particleCount; i++) {
+    const x = (Math.random() - 0.5) * 100;
+    const y = (Math.random() - 0.5) * 100;
+    const z = (Math.random() - 0.5) * 100;
+    positions.push(x, y, z);
+  }
+
+  const particleGeometry = new THREE.BufferGeometry();
+  particleGeometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+
+  // Créer un matériau pour les particules
+  const particleMaterial = new THREE.PointsMaterial({
+    color: 0xffffff,
+    size: 0.5,
+    sizeAttenuation: true, // plus petites si éloignées
+    transparent: true,
+    opacity: 0.8
+  });
+
+  // Créer le système de particules
+  const particles = new THREE.Points(particleGeometry, particleMaterial);
+
+  return particles;
+}
+
+// création texture
+function create_texture(filepath){
+  const texture_loader = new THREE.TextureLoader();
+  const texture = texture_loader.load( filepath );
+  texture.colorSpace = THREE.SRGBColorSpace;
+  return texture;
+}
+
+// création cube
+function create_cube(color, map){
+  const geometry = new THREE.BoxGeometry( 1, 1, 1 );
+  const material = new THREE.MeshStandardMaterial( { color, map } );
+  const cube = new THREE.Mesh( geometry, material );
+  return cube;
+}
+
+// création lumière
+function create_light(color, intensity){
+  const light = new THREE.DirectionalLight(color, intensity);
+  light.position.set(-1, 2, 4);
+  return light;
+}
+
 let loadedModel = null;
 let clock = new THREE.Clock();
 
-// Modèle 3d
-const model_loader = new GLTFLoader();
-model_loader.load( 'ressources/3d_models/ooiia_cat/scene.gltf', function ( gltf ) {
-    gltf.scene.position.x = -5;
-    gltf.scene.scale.set(3,3,3);
+// création d'un objet en 3d
+function create_3d(model, pos, scale){
+  const model_loader = new GLTFLoader();
+  model_loader.load( model, function ( gltf ) {
+      gltf.scene.position.x = pos;
+      gltf.scene.scale.set(scale, scale, scale);
 
-    loadedModel = gltf.scene;
+      loadedModel = gltf.scene;
 
-    scene.add( gltf.scene );
-}, undefined, function ( error ) {
-  console.error( error );
-} );
-
+      scene.add( gltf.scene );
+  }, undefined, function ( error ) {
+    console.error( error );
+  } );
+}
 
 // animations
 function animate() {
@@ -65,14 +93,26 @@ function animate() {
   cube.rotation.x += 0.01;
   cube.rotation.y += 0.01;
 
+  //animate_model();
+
+  renderer.render( scene, camera );
+}
+
+function animate_model(){
   const elapsedTime = clock.getElapsedTime();
   if (loadedModel){
     loadedModel.rotation.y += 0.05;
     loadedModel.position.y = Math.sin(elapsedTime * 4) * 0.8;
   }
-  
-
   renderer.render( scene, camera );
+  
 }
 
+// initialisation et ajout à la scene des objets
+const texture = create_texture('ressources/images/meowl.jpg');
+const cube = create_cube(null, texture);
+scene.add(cube);
+scene.add(create_light(0xffffff, 3));
+const model_3d = create_3d('ressources/3d_models/ooiia_cat/scene.gltf', -5, 3);
+scene.add(ciel_etoile());
 renderer.setAnimationLoop( animate );
