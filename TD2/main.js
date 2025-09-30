@@ -15,6 +15,9 @@ document.body.appendChild( renderer.domElement );
 // positionnement caméra
 camera.position.z = 5;
 
+// objets qui suivent l'orientation du téléphone
+window.addEventListener('deviceorientation', handleOrientation);
+
 // création de particules (ciel etoilé ici)
 function ciel_etoile(){
   // Créer une géométrie de particules
@@ -87,6 +90,14 @@ function create_3d(model, pos, scale){
   } );
 }
 
+let alpha = 0, beta = 0, gamma = 0;
+
+function handleOrientation(event) {
+  alpha = event.alpha;
+  beta = event.beta;
+  gamma = event.gamma;
+}
+
 // animations
 function animate() {
 
@@ -94,6 +105,7 @@ function animate() {
   cube.rotation.y += 0.01;
 
   //animate_model();
+  rotate_model();
 
   renderer.render( scene, camera );
 }
@@ -105,7 +117,17 @@ function animate_model(){
     loadedModel.position.y = Math.sin(elapsedTime * 4) * 0.8;
   }
   renderer.render( scene, camera );
-  
+}
+
+function rotate_model(){
+  if (loadedModel) {
+    // Rotation avec le téléphone
+    loadedModel.rotation.x = THREE.MathUtils.degToRad(beta);  // inclinaison avant/arrière
+    loadedModel.rotation.y = THREE.MathUtils.degToRad(gamma); // gauche/droite
+    loadedModel.rotation.z = THREE.MathUtils.degToRad(alpha); // rotation compas
+  }
+
+  renderer.render(scene, camera);
 }
 
 // initialisation et ajout à la scene des objets
