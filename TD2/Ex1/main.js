@@ -101,9 +101,9 @@ function handleOrientation(event) {
 // animations
 function animate() {
 
-  //animate_cube();
-  //animate_model();
-  rotate_();
+  animate_cube();
+  animate_model();
+  //rotate_();
 
   renderer.render( scene, camera );
 }
