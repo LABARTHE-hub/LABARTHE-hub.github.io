@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>TD3</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+
+    <style>
+      body {
+        margin: 0;
+        overflow: hidden;
+        font-family: Arial, sans-serif;
+      }
+      #container {
+        display: flex;
+        width: 100vw;
+        height: 100vh;
+      }
+      #map {
+        width: 50%;
+        height: 100%;
+      }
+      #canvas-container {
+        width: 50%;
+        height: 100%;
+        position: relative;
+      }
+    </style>
+
+    <script type="importmap">
+      {
+        "imports": {
+          "three": "https://unpkg.com/three/build/three.module.js",
+          "three/addons/": "https://unpkg.com/three/examples/jsm/"
+        }
+      }
+    </script>
+  </head>
+
+  <body>
+    <div id="container">
+      <div id="map"></div>
+      <div id="canvas-container"></div>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script type="module" src="./main.js"></script>
+  </body>
+</html>
