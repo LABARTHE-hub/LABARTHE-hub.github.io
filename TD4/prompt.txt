@@ -1,0 +1,101 @@
+projet : simulation du systeme solaire de manière interactive
+architecture : 
+	- une page html pour heberger l'appli
+	- un ou plusieurs fichiers js pour le code de l'appli
+	- modèles 3d deja chargés dans ./ressources/3dmodels/<model>
+		ex : modele de mercure dans ./ressources/3dmodels/mercure/, modele de venus dans ./ressources/3dmodels/venus/, etc...
+#cmd
+C:\Users\etudiant\Desktop\BUT3\SEM5\R506\initiation-multimedia\LABARTHE-hub.github.io\TD4>dir * /s /p
+ Le volume dans le lecteur C n’a pas de nom.
+ Le numéro de série du volume est DE5D-ACF1
+
+ Répertoire de C:\Users\etudiant\Desktop\BUT3\SEM5\R506\initiation-multimedia\LABARTHE-hub.github.io\TD4
+
+23/10/2025  10:29    <DIR>          .
+23/10/2025  10:29    <DIR>          ..
+23/10/2025  10:05             2 018 prompt.txt
+23/10/2025  10:30    <DIR>          ressources
+               1 fichier(s)            2 018 octets
+
+ Répertoire de C:\Users\etudiant\Desktop\BUT3\SEM5\R506\initiation-multimedia\LABARTHE-hub.github.io\TD4\ressources
+
+23/10/2025  10:30    <DIR>          .
+23/10/2025  10:30    <DIR>          ..
+23/10/2025  10:31    <DIR>          3dmodels
+               0 fichier(s)                0 octets
+
+ Répertoire de C:\Users\etudiant\Desktop\BUT3\SEM5\R506\initiation-multimedia\LABARTHE-hub.github.io\TD4\ressources\3dmodels
+
+23/10/2025  10:31    <DIR>          .
+23/10/2025  10:31    <DIR>          ..
+23/10/2025  10:30    <DIR>          earth
+23/10/2025  10:30    <DIR>          jupiter
+23/10/2025  10:30    <DIR>          mars
+23/10/2025  10:30    <DIR>          mercure
+23/10/2025  10:31    <DIR>          neptune
+23/10/2025  10:30    <DIR>          saturne
+Appuyez sur une touche pour continuer...
+23/10/2025  10:31    <DIR>          sun
+23/10/2025  10:30    <DIR>          uranus
+23/10/2025  10:30    <DIR>          venus
+               0 fichier(s)                0 octets
+
+
+contraintes :
+	- doit fonctionné une fois push sur github
+	- utiliser three.js pour la gestion de la 3d (pas de contrainte de librairie pour le reconaissance d'images)
+	- page divisée en 2 parties : simulation et affichage de la caméra
+	- par défaut, vue d'au dessus, centré sur soleil, vue sur tout le système
+contexte :
+	- simulation (simpliste) du système solaire, soleil, planètes, ceintures d'astéroïdes représentés
+	- distances planètes-soleil mises à l'échelle
+	- planètes en rotation
+	- temps de rotations et trajectoires respectés
+	- échelles de tailles à repsecter
+	- possibilité d'accelerer le temps (temps de base 1sec (réalité) = 1 jour (simulation))
+interactivité :
+	- la caméra est analysée pour reconnaitre différents signes
+	- si poing droit fermé : centrer et zommer sur le soleil
+	- si 1 doigt levé (index droit) : centrer et zommer sur mercure
+	- si 2 doigts levés (index et majeur droits) : centrer et zommer sur venus
+	- si 3 doigts levés (index, majeur et annulaire droits) : centrer et zommer sur terre
+	- si 4 doigts levés (index, majeur, annulaire et orriculaire droits) : centrer et zommer sur mars
+	- si main droite ouverte (5 doigts levés) : centrer et zommer sur jupiter
+	- si main droite ouverte (5 doigts levés) et index gauche levé : centrer et zommer sur saturne
+	- si main droite ouverte (5 doigts levés) et index + majeur gauches levés : centrer et zommer sur uranus
+	- si main droite ouverte (5 doigts levés) et index + majeur + annulaire gauches levés : centrer et zommer sur neptune
+	- si deux mains ouvertes : zoomer
+	- si deux poigns fermés : dezommer
+	- si main droite qui pince (pouce et index collés) : permet de se déplacer en suivant le mouvement de la main
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+peux tu corriger les erreurs de syntaxes d'indentations s'il y en a ?
+
+HTML
+
+CSS
+
+GESTURES.JS
+
+MAIN.JS
+
