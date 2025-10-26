@@ -44,41 +44,619 @@ Appuyez sur une touche pour continuer...
 contraintes :
 	- doit fonctionné une fois push sur github
 	- utiliser three.js pour la gestion de la 3d (pas de contrainte de librairie pour le reconaissance d'images)
-	- page divisée en 2 parties : simulation et affichage de la caméra
 	- par défaut, vue d'au dessus, centré sur soleil, vue sur tout le système
 contexte :
-	- simulation (simpliste) du système solaire, soleil, planètes, ceintures d'astéroïdes représentés
+	- simulation (simpliste) du système solaire, soleil, planètes représentés
 	- distances planètes-soleil mises à l'échelle
 	- planètes en rotation
 	- temps de rotations et trajectoires respectés
 	- échelles de tailles à repsecter
 	- possibilité d'accelerer le temps (temps de base 1sec (réalité) = 1 jour (simulation))
 interactivité :
-	- la caméra est analysée pour reconnaitre différents signes
-	- si poing droit fermé : centrer et zommer sur le soleil
-	- si 1 doigt levé (index droit) : centrer et zommer sur mercure
-	- si 2 doigts levés (index et majeur droits) : centrer et zommer sur venus
-	- si 3 doigts levés (index, majeur et annulaire droits) : centrer et zommer sur terre
-	- si 4 doigts levés (index, majeur, annulaire et orriculaire droits) : centrer et zommer sur mars
-	- si main droite ouverte (5 doigts levés) : centrer et zommer sur jupiter
-	- si main droite ouverte (5 doigts levés) et index gauche levé : centrer et zommer sur saturne
-	- si main droite ouverte (5 doigts levés) et index + majeur gauches levés : centrer et zommer sur uranus
-	- si main droite ouverte (5 doigts levés) et index + majeur + annulaire gauches levés : centrer et zommer sur neptune
-	- si deux mains ouvertes : zoomer
-	- si deux poigns fermés : dezommer
-	- si main droite qui pince (pouce et index collés) : permet de se déplacer en suivant le mouvement de la main
+	l'interactivité se fais par reconaissance vocale, 
+	si je dis le nom d'une planète, la caméra se centre sur celle ci et zoom dessus, 
+	si je dis "système" la caméra reviens sur le système solaire de base
+	le zoom se fais aussi par les commandes vocales "avance" et "recule"
+
+ici, le soleil s'affiche comme une shepre jaune, les planètes ne s'affichent pas sur leur orbites, 
+la console web affiche 2GLTFLoader.js:419  THREE.GLTFLoader: Unknown extension "KHR_materials_pbrSpecularGlossiness". pourtant, toutes les scenes sont au format GLTF
+si je dis soleil, cela zoom su le soleil, la commande système fonctionne à ce moment la,
+si je dis le nom d'une planète, cela affiche un écran noir
+si, après ça, je re dis soleil, cela reste un écran noir, après ça, la commande système ne fonctionne plus
 
 
 
-finalement, je préfére que l'interactivité se fasse pas reconaissance vocale, modifie le code suivant en fonction
+CODE A CORRIGER
+
+HTML
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>🌞 Simulation du Système Solaire — Commandes vocales</title>
+
+  <style>
+    body {
+      margin: 0;
+      background: #000;
+      color: #eee;
+      font-family: system-ui, sans-serif;
+      overflow: hidden;
+    }
+    header, footer {
+      text-align: center;
+      background: #111;
+      padding: 0.5em;
+    }
+    main {
+      display: flex;
+      height: calc(100vh - 100px);
+    }
+    #sim {
+      flex: 3;
+      position: relative;
+    }
+    #three-canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+    aside {
+      flex: 1;
+      background: #111;
+      padding: 1em;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      border-left: 1px solid #333;
+    }
+    button {
+      margin: 0.25em;
+      padding: 0.5em 1em;
+      border: none;
+      border-radius: 0.5em;
+      cursor: pointer;
+      background: #333;
+      color: #fff;
+    }
+    button:hover { background: #555; }
+  </style>
+
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+        "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+      }
+    }
+  </script>
+</head>
+
+<body>
+  <header><h1>🌍 Simulation du Système Solaire</h1></header>
+
+  <main>
+    <section id="sim"><canvas id="three-canvas"></canvas></section>
+    <aside>
+      <div>
+        <h2>🎤 Commandes vocales</h2>
+        <p>Dites : <strong>“Soleil”, “Terre”, “Mars”, “Système”, “Avance”, “Recule”</strong></p>
+        <p>État : <strong id="voiceState">désactivée</strong></p>
+        <p>Dernière phrase : <em id="lastTranscript">—</em></p>
+      </div>
+      <div>
+        <button id="startVoice">▶️ Démarrer</button>
+        <button id="stopVoice">⏹️ Arrêter</button>
+      </div>
+    </aside>
+  </main>
+
+  <footer><small>Projet BUT3 R506 – three.js + Web Speech API</small></footer>
+
+  <script type="module" src="./js/main.js"></script>
+</body>
+</html>
 
 
-rien ne s'affiche sur la simulation, pourtant rien ne s'affiche dans la console, aucun warn concerant un problème sur les modèles 3d
 
-pourquoi les boutons startVoice et stopVoice ne font rien ? peux-tu regler ce problème ?
+MAIN.JS
 
-console web : Uncaught TypeError: Le spécificateur « three » était un spécificateur simple, mais n’a pas été remappé. Les spécificateurs relatifs de modules doivent commencer par « ./ », « ../ » ou « / ».
-peux tu regler ce probleme ?
+import * as THREE from "three";
+import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
+import "./voice.js";
 
-ECRIS LA SUITE CHEZ TOI TROU DE BALLE
+// === CONFIGURATION ===
+const SCALE_DISTANCE = 0.00001;
+const SCALE_SIZE = 0.00005;
 
+// === DONNÉES ASTRONOMIQUES ===
+const solarSystemData = {
+  sun: {
+    name: 'Soleil',
+    radius: 696340,
+    distance: 0,
+    orbitalPeriod: 0,
+    rotationPeriod: 25.05,
+    color: 0xFDB813,
+    modelPath: './ressources/3dmodels/sun/'
+  },
+  mercure: {
+    name: 'Mercure',
+    radius: 2439.7,
+    distance: 57909050,
+    orbitalPeriod: 87.97,
+    rotationPeriod: 58.65,
+    color: 0x8C7853,
+    modelPath: './ressources/3dmodels/mercure/'
+  },
+  venus: {
+    name: 'Vénus',
+    radius: 6051.8,
+    distance: 108208000,
+    orbitalPeriod: 224.7,
+    rotationPeriod: -243,
+    color: 0xFFC649,
+    modelPath: './ressources/3dmodels/venus/'
+  },
+  earth: {
+    name: 'Terre',
+    radius: 6371,
+    distance: 149598023,
+    orbitalPeriod: 365.26,
+    rotationPeriod: 1,
+    color: 0x4169E1,
+    modelPath: './ressources/3dmodels/earth/'
+  },
+  mars: {
+    name: 'Mars',
+    radius: 3389.5,
+    distance: 227939200,
+    orbitalPeriod: 686.98,
+    rotationPeriod: 1.03,
+    color: 0xCD5C5C,
+    modelPath: './ressources/3dmodels/mars/'
+  },
+  jupiter: {
+    name: 'Jupiter',
+    radius: 69911,
+    distance: 778570000,
+    orbitalPeriod: 4332.59,
+    rotationPeriod: 0.41,
+    color: 0xDAA520,
+    modelPath: './ressources/3dmodels/jupiter/'
+  },
+  saturne: {
+    name: 'Saturne',
+    radius: 58232,
+    distance: 1433530000,
+    orbitalPeriod: 10759.22,
+    rotationPeriod: 0.45,
+    color: 0xF4A460,
+    modelPath: './ressources/3dmodels/saturne/'
+  },
+  uranus: {
+    name: 'Uranus',
+    radius: 25362,
+    distance: 2872460000,
+    orbitalPeriod: 30688.5,
+    rotationPeriod: -0.72,
+    color: 0x4FD0E4,
+    modelPath: './ressources/3dmodels/uranus/'
+  },
+  neptune: {
+    name: 'Neptune',
+    radius: 24622,
+    distance: 4495060000,
+    orbitalPeriod: 60182,
+    rotationPeriod: 0.67,
+    color: 0x4169E1,
+    modelPath: './ressources/3dmodels/neptune/'
+  }
+};
+
+// === RENDU ===
+const canvas = document.getElementById("three-canvas");
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+renderer.setSize(window.innerWidth * 0.75, window.innerHeight - 100);
+renderer.setPixelRatio(window.devicePixelRatio);
+
+// === SCÈNE ===
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x000000);
+
+// === CAMÉRA ===
+const camera = new THREE.PerspectiveCamera(
+  60,
+  (window.innerWidth * 0.75) / (window.innerHeight - 100),
+  0.1,
+  20000
+);
+scene.add(camera);
+
+// === LUMIÈRES ===
+scene.add(new THREE.AmbientLight(0x666666));
+const sunLight = new THREE.PointLight(0xffffff, 4, 0);
+sunLight.position.set(0, 0, 0);
+scene.add(sunLight);
+
+// === CIEL ÉTOILÉ ===
+const starCount = 3000;
+const starGeo = new THREE.BufferGeometry();
+const starPos = new Float32Array(starCount * 3);
+for (let i = 0; i < starCount * 3; i++)
+  starPos[i] = (Math.random() - 0.5) * 10000;
+starGeo.setAttribute("position", new THREE.BufferAttribute(starPos, 3));
+scene.add(new THREE.Points(starGeo, new THREE.PointsMaterial({ color: 0xffffff, size: 8 })));
+
+// === PLANÈTES ===
+const loader = new GLTFLoader();
+const planets = {};
+let simDays = 0;
+const timeScale = 1;
+
+// Variables pour la caméra
+let targetPlanet = null;
+let targetPosition = new THREE.Vector3(0, 0, 0);
+let cameraDistance = 5000;
+const defaultCameraDistance = 5000;
+
+// Fonction pour créer une sphère de fallback
+function createFallbackSphere(data, scaledRadius) {
+  const geometry = new THREE.SphereGeometry(scaledRadius, 32, 32);
+  const material = new THREE.MeshPhongMaterial({ 
+    color: data.color,
+    emissive: data.name === 'Soleil' ? data.color : 0x000000,
+    emissiveIntensity: data.name === 'Soleil' ? 0.8 : 0
+  });
+  return new THREE.Mesh(geometry, material);
+}
+
+// Charger les planètes
+Object.keys(solarSystemData).forEach((planetKey) => {
+  const data = solarSystemData[planetKey];
+  const scaledRadius = data.radius * SCALE_SIZE;
+  const scaledDistance = data.distance * SCALE_DISTANCE;
+  
+  const planetGroup = new THREE.Group();
+  scene.add(planetGroup);
+  
+  // Créer l'orbite
+  if (scaledDistance > 0) {
+    const orbitGeometry = new THREE.BufferGeometry();
+    const orbitPoints = [];
+    const segments = 128;
+    for (let i = 0; i <= segments; i++) {
+      const theta = (i / segments) * Math.PI * 2;
+      orbitPoints.push(
+        Math.cos(theta) * scaledDistance,
+        0,
+        Math.sin(theta) * scaledDistance
+      );
+    }
+    orbitGeometry.setAttribute('position', new THREE.Float32BufferAttribute(orbitPoints, 3));
+    const orbitMaterial = new THREE.LineBasicMaterial({ 
+      color: 0xFFFFFF, 
+      opacity: 0.3, 
+      transparent: true 
+    });
+    const orbit = new THREE.Line(orbitGeometry, orbitMaterial);
+    scene.add(orbit);
+  }
+  
+  // Créer un mesh temporaire (fallback)
+  const fallbackMesh = createFallbackSphere(data, scaledRadius);
+  fallbackMesh.position.x = scaledDistance;
+  planetGroup.add(fallbackMesh);
+  
+  // Stocker les informations
+  planets[planetKey] = {
+    group: planetGroup,
+    mesh: fallbackMesh,
+    data: data,
+    angle: Math.random() * Math.PI * 2,
+    scaledDistance: scaledDistance,
+    scaledRadius: scaledRadius,
+    modelLoaded: false
+  };
+  
+  // Charger le modèle GLTF
+  loader.load(
+    `${data.modelPath}scene.gltf`,
+    (gltf) => {
+      console.log(`✓ Modèle chargé: ${planetKey}`);
+      const model = gltf.scene;
+      
+      // Centrer le modèle
+      const box = new THREE.Box3().setFromObject(model);
+      const center = box.getCenter(new THREE.Vector3());
+      model.position.sub(center);
+      
+      // Échelle
+      model.scale.set(scaledRadius * 2, scaledRadius * 2, scaledRadius * 2);
+      
+      // Matériaux
+      model.traverse((node) => {
+        if (node.isMesh) {
+          if (planetKey === 'sun') {
+            node.material = new THREE.MeshStandardMaterial({
+              emissive: data.color,
+              emissiveIntensity: 0.8,
+              color: data.color,
+            });
+          } else {
+            if (!node.material || !node.material.color) {
+              node.material = new THREE.MeshStandardMaterial({
+                color: data.color,
+                roughness: 0.6,
+                metalness: 0.1,
+              });
+            }
+          }
+        }
+      });
+      
+      // Remplacer le fallback par le modèle
+      planetGroup.remove(fallbackMesh);
+      fallbackMesh.geometry.dispose();
+      fallbackMesh.material.dispose();
+      
+      planetGroup.add(model);
+      planets[planetKey].mesh = model;
+      planets[planetKey].modelLoaded = true;
+    },
+    undefined,
+    (err) => {
+      console.warn(`⚠ Erreur chargement ${planetKey}, utilisation du fallback:`, err);
+      // Le fallback est déjà en place
+    }
+  );
+});
+
+// === FONCTIONS DE CONTRÔLE ===
+function focusOn(id) {
+  console.log(`Focus sur: ${id}`);
+  
+  if (id === "systeme") {
+    targetPlanet = null;
+    targetPosition.set(0, 0, 0);
+    cameraDistance = defaultCameraDistance;
+    return;
+  }
+  
+  if (planets[id]) {
+    targetPlanet = id;
+    cameraDistance = Math.max(300, planets[id].scaledRadius * 10);
+    console.log(`Distance caméra: ${cameraDistance}`);
+  } else {
+    console.warn(`Planète non trouvée: ${id}`);
+  }
+}
+
+function zoomIn() {
+  cameraDistance = Math.max(100, cameraDistance * 0.7);
+  console.log(`Zoom in: ${cameraDistance}`);
+}
+
+function zoomOut() {
+  cameraDistance = Math.min(10000, cameraDistance * 1.4);
+  console.log(`Zoom out: ${cameraDistance}`);
+}
+
+// Exposer les fonctions pour voice.js
+window._solar = { focusOn, zoomIn, zoomOut };
+
+// === POSITION INITIALE CAMÉRA ===
+camera.position.set(0, 2000, 5000);
+camera.lookAt(0, 0, 0);
+
+// === ANIMATION ===
+let last = performance.now();
+
+function animate(now) {
+  requestAnimationFrame(animate);
+  const dt = (now - last) / 1000;
+  last = now;
+  simDays += dt * timeScale;
+  
+  // Mise à jour des planètes
+  Object.keys(planets).forEach((key) => {
+    const planet = planets[key];
+    const data = planet.data;
+    
+    if (data.distance > 0) {
+      const angularVelocity = (2 * Math.PI) / data.orbitalPeriod;
+      planet.angle += angularVelocity * dt * timeScale;
+      
+      planet.group.position.x = Math.cos(planet.angle) * planet.scaledDistance;
+      planet.group.position.z = Math.sin(planet.angle) * planet.scaledDistance;
+    }
+    
+    // Rotation propre
+    const rotationSpeed = (2 * Math.PI) / Math.abs(data.rotationPeriod);
+    planet.mesh.rotation.y += rotationSpeed * dt * timeScale * Math.sign(data.rotationPeriod);
+  });
+  
+  // Mise à jour de la caméra
+  if (targetPlanet && planets[targetPlanet]) {
+    const planet = planets[targetPlanet];
+    targetPosition = planet.group.position.clone();
+  }
+  
+  const desiredPos = new THREE.Vector3(
+    targetPosition.x,
+    cameraDistance * 0.4,
+    targetPosition.z + cameraDistance
+  );
+  
+  camera.position.lerp(desiredPos, 0.05);
+  camera.lookAt(targetPosition);
+  
+  renderer.render(scene, camera);
+}
+
+animate();
+
+// === RESIZE ===
+window.addEventListener("resize", () => {
+  camera.aspect = (window.innerWidth * 0.75) / (window.innerHeight - 100);
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth * 0.75, window.innerHeight - 100);
+});
+
+VOICE.JS
+
+window.addEventListener("DOMContentLoaded", () => {
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  const stateEl = document.getElementById("voiceState");
+  const transcriptEl = document.getElementById("lastTranscript");
+  const btnStart = document.getElementById("startVoice");
+  const btnStop = document.getElementById("stopVoice");
+
+  if (!SpeechRecognition) {
+    stateEl.textContent = "non supportée ❌";
+    btnStart.disabled = true;
+    btnStop.disabled = true;
+    return;
+  }
+
+  const recognition = new SpeechRecognition();
+  recognition.lang = "fr-FR";
+  recognition.continuous = true;
+  recognition.interimResults = false;
+
+  let isRunning = false;
+
+  // Mapping des commandes vocales
+  const commands = {
+    soleil: "sun",
+    mercure: "mercure",
+    vénus: "venus",
+    venus: "venus",
+    terre: "earth",
+    mars: "mars",
+    jupiter: "jupiter",
+    saturne: "saturne",
+    uranus: "uranus",
+    neptune: "neptune",
+    système: "systeme",
+    systeme: "systeme",
+    avance: "zoom_in",
+    zoom: "zoom_in",
+    dézoome: "zoom_out",
+    recule: "zoom_out"
+  };
+
+  function handleCommand(cmd) {
+    console.log(`Traitement commande: ${cmd}`);
+    
+    if (!window._solar) {
+      console.error("window._solar n'est pas disponible");
+      return;
+    }
+    
+    const { focusOn, zoomIn, zoomOut } = window._solar;
+    
+    // Focus sur planète ou système
+    if (["sun", "mercure", "venus", "earth", "mars", "jupiter", "saturne", "uranus", "neptune", "systeme"].includes(cmd)) {
+      focusOn(cmd);
+    }
+    // Zoom
+    else if (cmd === "zoom_in") {
+      zoomIn();
+    }
+    else if (cmd === "zoom_out") {
+      zoomOut();
+    }
+  }
+
+  recognition.onresult = (event) => {
+    const text = event.results[event.results.length - 1][0].transcript.trim().toLowerCase();
+    transcriptEl.textContent = text;
+    console.log(`Transcription: "${text}"`);
+    
+    // Chercher une correspondance dans les commandes
+    for (const [keyword, cmd] of Object.entries(commands)) {
+      if (text.includes(keyword)) {
+        console.log(`✓ Commande reconnue: ${keyword} -> ${cmd}`);
+        handleCommand(cmd);
+        break;
+      }
+    }
+  };
+
+  recognition.onstart = () => {
+    isRunning = true;
+    stateEl.textContent = "🎤 active";
+    stateEl.style.color = "#4f4";
+    console.log("Reconnaissance vocale démarrée");
+  };
+
+  recognition.onend = () => {
+    console.log("Reconnaissance vocale terminée");
+    if (isRunning) {
+      stateEl.textContent = "reconnexion…";
+      setTimeout(() => {
+        if (isRunning) {
+          try {
+            recognition.start();
+          } catch (e) {
+            console.warn("Impossible de redémarrer:", e);
+          }
+        }
+      }, 500);
+    } else {
+      stateEl.textContent = "désactivée";
+      stateEl.style.color = "#f44";
+    }
+  };
+
+  recognition.onerror = (event) => {
+    console.error("Erreur reconnaissance vocale:", event.error);
+    
+    // Ne pas tenter de redémarrer si l'erreur est "no-speech"
+    if (event.error === "no-speech") {
+      // C'est normal, on continue
+      return;
+    }
+    
+    if (event.error === "aborted") {
+      console.log("Reconnaissance interrompue volontairement");
+      return;
+    }
+    
+    stateEl.textContent = `erreur: ${event.error}`;
+  };
+
+  btnStart.onclick = () => {
+    if (!isRunning) {
+      isRunning = true;
+      try {
+        recognition.start();
+        console.log("Démarrage manuel de la reconnaissance");
+      } catch (e) {
+        console.error("Erreur au démarrage:", e);
+        isRunning = false;
+      }
+    }
+  };
+
+  btnStop.onclick = () => {
+    isRunning = false;
+    try {
+      recognition.stop();
+      console.log("Arrêt manuel de la reconnaissance");
+    } catch (e) {
+      console.error("Erreur à l'arrêt:", e);
+    }
+    stateEl.textContent = "désactivée";
+    stateEl.style.color = "#f44";
+  };
+
+  // Activation automatique au chargement
+  setTimeout(() => {
+    if (!isRunning) {
+      btnStart.click();
+    }
+  }, 1000);
+});

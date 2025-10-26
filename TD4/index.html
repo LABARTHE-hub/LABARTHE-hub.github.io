@@ -3,19 +3,20 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Simulation Système Solaire — Contrôle vocal</title>
+  <title>🌞 Simulation du Système Solaire — Commandes vocales</title>
+
   <style>
     body {
       margin: 0;
-      font-family: system-ui, sans-serif;
       background: #000;
       color: #eee;
+      font-family: system-ui, sans-serif;
       overflow: hidden;
     }
     header, footer {
       text-align: center;
-      padding: 0.5em;
       background: #111;
+      padding: 0.5em;
     }
     main {
       display: flex;
@@ -37,7 +38,7 @@
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      border-left: 1px solid #222;
+      border-left: 1px solid #333;
     }
     button {
       margin: 0.25em;
@@ -48,42 +49,31 @@
       background: #333;
       color: #fff;
     }
-    button:hover {
-      background: #555;
-    }
+    button:hover { background: #555; }
   </style>
 
-  <!-- Importmap pour three.js -->
   <script type="importmap">
     {
       "imports": {
-        "three": "https://unpkg.com/three/build/three.module.js",
-        "three/addons/": "https://unpkg.com/three/examples/jsm/"
+        "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+        "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
       }
     }
   </script>
 </head>
 
 <body>
-  <header>
-    <h1>🌞 Simulation du Système Solaire</h1>
-  </header>
+  <header><h1>🌍 Simulation du Système Solaire</h1></header>
 
   <main>
-    <section id="sim">
-      <canvas id="three-canvas"></canvas>
-    </section>
-
+    <section id="sim"><canvas id="three-canvas"></canvas></section>
     <aside>
       <div>
         <h2>🎤 Commandes vocales</h2>
-        <p>Exemples : <br>
-          <strong>“Soleil”, “Terre”, “Mars”, “Zoom”, “Dézoome”</strong>
-        </p>
-        <div id="voiceStatus">État : <strong id="voiceState">désactivée</strong></div>
-        <div id="lastTranscript">Dernière phrase : <em>—</em></div>
+        <p>Dites : <strong>“Soleil”, “Terre”, “Mars”, “Système”, “Avance”, “Recule”</strong></p>
+        <p>État : <strong id="voiceState">désactivée</strong></p>
+        <p>Dernière phrase : <em id="lastTranscript">—</em></p>
       </div>
-
       <div>
         <button id="startVoice">▶️ Démarrer</button>
         <button id="stopVoice">⏹️ Arrêter</button>
@@ -91,11 +81,8 @@
     </aside>
   </main>
 
-  <footer>
-    <small>Développé avec <strong>three.js</strong> et la <strong>Web Speech API</strong>.</small>
-  </footer>
+  <footer><small>Projet BUT3 R506 – three.js + Web Speech API</small></footer>
 
-  <!-- Script principal -->
   <script type="module" src="./js/main.js"></script>
 </body>
 </html>

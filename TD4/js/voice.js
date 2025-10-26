@@ -1,12 +1,14 @@
 window.addEventListener("DOMContentLoaded", () => {
   const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
   const stateEl = document.getElementById("voiceState");
-  const transcriptEl = document.getElementById("lastTranscript").querySelector("em");
+  const transcriptEl = document.getElementById("lastTranscript");
   const btnStart = document.getElementById("startVoice");
   const btnStop = document.getElementById("stopVoice");
 
   if (!SpeechRecognition) {
     stateEl.textContent = "non supportée ❌";
+    btnStart.disabled = true;
+    btnStop.disabled = true;
     return;
   }
 
@@ -15,55 +17,138 @@ window.addEventListener("DOMContentLoaded", () => {
   recognition.continuous = true;
   recognition.interimResults = false;
 
+  let isRunning = false;
+
+  // Mapping des commandes vocales
   const commands = {
-    "soleil": "sun",
-    "mercure": "mercure",
-    "vénus": "venus",
-    "venus": "venus",
-    "terre": "earth",
-    "mars": "mars",
-    "jupiter": "jupiter",
-    "saturne": "saturne",
-    "uranus": "uranus",
-    "neptune": "neptune",
-    "zoom": "zoom_in",
-    "dézoome": "zoom_out",
-    "recule": "zoom_out",
-    "avance": "zoom_in"
+    soleil: "sun",
+    mercure: "mercure",
+    vénus: "venus",
+    venus: "venus",
+    terre: "earth",
+    mars: "mars",
+    jupiter: "jupiter",
+    saturne: "saturne",
+    uranus: "uranus",
+    neptune: "neptune",
+    système: "systeme",
+    systeme: "systeme",
+    avance: "zoom_in",
+    zoom: "zoom_in",
+    dézoome: "zoom_out",
+    recule: "zoom_out"
   };
 
   function handleCommand(cmd) {
-    if (!window._solar) return;
+    console.log(`Traitement commande: ${cmd}`);
+    
+    if (!window._solar) {
+      console.error("window._solar n'est pas disponible");
+      return;
+    }
+    
     const { focusOn, zoomIn, zoomOut } = window._solar;
-
-    if (["sun", "mercure", "venus", "earth", "mars", "jupiter", "saturne", "uranus", "neptune"].includes(cmd))
+    
+    // Focus sur planète ou système
+    if (["sun", "mercure", "venus", "earth", "mars", "jupiter", "saturne", "uranus", "neptune", "systeme"].includes(cmd)) {
       focusOn(cmd);
-    else if (cmd === "zoom_in") zoomIn();
-    else if (cmd === "zoom_out") zoomOut();
+    }
+    // Zoom
+    else if (cmd === "zoom_in") {
+      zoomIn();
+    }
+    else if (cmd === "zoom_out") {
+      zoomOut();
+    }
   }
 
-  recognition.onresult = e => {
-    const text = e.results[e.results.length - 1][0].transcript.trim().toLowerCase();
+  recognition.onresult = (event) => {
+    const text = event.results[event.results.length - 1][0].transcript.trim().toLowerCase();
     transcriptEl.textContent = text;
-    for (const [word, cmd] of Object.entries(commands)) {
-      if (text.includes(word)) {
+    console.log(`Transcription: "${text}"`);
+    
+    // Chercher une correspondance dans les commandes
+    for (const [keyword, cmd] of Object.entries(commands)) {
+      if (text.includes(keyword)) {
+        console.log(`✓ Commande reconnue: ${keyword} -> ${cmd}`);
         handleCommand(cmd);
         break;
       }
     }
   };
 
-  recognition.onerror = e => {
-    stateEl.textContent = "erreur ⚠️";
-    console.error(e);
+  recognition.onstart = () => {
+    isRunning = true;
+    stateEl.textContent = "🎤 active";
+    stateEl.style.color = "#4f4";
+    console.log("Reconnaissance vocale démarrée");
   };
 
-  recognition.onstart = () => (stateEl.textContent = "active 🎤");
-  recognition.onend = () => (stateEl.textContent = "arrêtée ⏹️");
+  recognition.onend = () => {
+    console.log("Reconnaissance vocale terminée");
+    if (isRunning) {
+      stateEl.textContent = "reconnexion…";
+      setTimeout(() => {
+        if (isRunning) {
+          try {
+            recognition.start();
+          } catch (e) {
+            console.warn("Impossible de redémarrer:", e);
+          }
+        }
+      }, 500);
+    } else {
+      stateEl.textContent = "désactivée";
+      stateEl.style.color = "#f44";
+    }
+  };
 
-  btnStart.onclick = () => recognition.start();
-  btnStop.onclick = () => recognition.stop();
+  recognition.onerror = (event) => {
+    console.error("Erreur reconnaissance vocale:", event.error);
+    
+    // Ne pas tenter de redémarrer si l'erreur est "no-speech"
+    if (event.error === "no-speech") {
+      // C'est normal, on continue
+      return;
+    }
+    
+    if (event.error === "aborted") {
+      console.log("Reconnaissance interrompue volontairement");
+      return;
+    }
+    
+    stateEl.textContent = `erreur: ${event.error}`;
+  };
 
-  // Démarrage automatique
-  recognition.start();
+  btnStart.onclick = () => {
+    if (!isRunning) {
+      isRunning = true;
+      try {
+        recognition.start();
+        console.log("Démarrage manuel de la reconnaissance");
+      } catch (e) {
+        console.error("Erreur au démarrage:", e);
+        isRunning = false;
+      }
+    }
+  };
+
+  btnStop.onclick = () => {
+    isRunning = false;
+    try {
+      recognition.stop();
+      console.log("Arrêt manuel de la reconnaissance");
+    } catch (e) {
+      console.error("Erreur à l'arrêt:", e);
+    }
+    stateEl.textContent = "désactivée";
+    stateEl.style.color = "#f44";
+  };
+
+  // Activation automatique au chargement
+  setTimeout(() => {
+    if (!isRunning) {
+      btnStart.click();
+    }
+  }, 1000);
 });

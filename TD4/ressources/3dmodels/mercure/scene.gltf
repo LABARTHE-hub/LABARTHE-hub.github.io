@@ -3,24 +3,24 @@
     {
       "bufferView": 2,
       "componentType": 5126,
-      "count": 559,
+      "count": 3223,
       "max": [
-        80.29131317138672,
-        80.29131317138672,
-        80.29131317138672
+        0.999999463558197,
+        0.9999982118606567,
+        1.0
       ],
       "min": [
-        -80.29131317138672,
-        -80.29131317138672,
-        -80.29131317138672
+        -0.9999986290931702,
+        -0.999998927116394,
+        -1.0
       ],
       "type": "VEC3"
     },
     {
       "bufferView": 2,
-      "byteOffset": 6708,
+      "byteOffset": 38676,
       "componentType": 5126,
-      "count": 559,
+      "count": 3223,
       "max": [
         1.0,
         1.0,
@@ -34,192 +34,113 @@
       "type": "VEC3"
     },
     {
-      "bufferView": 3,
-      "componentType": 5126,
-      "count": 559,
-      "max": [
-        1.0,
-        1.0,
-        0.04912566393613815,
-        1.0
-      ],
-      "min": [
-        -1.0,
-        -1.0,
-        -0.04912569001317024,
-        1.0
-      ],
-      "type": "VEC4"
-    },
-    {
       "bufferView": 1,
       "componentType": 5126,
-      "count": 559,
+      "count": 3223,
       "max": [
-        1.000000238418579,
+        1.0,
         1.0
       ],
       "min": [
         0.0,
-        -1.1920928955078125e-07
+        0.0
       ],
       "type": "VEC2"
     },
     {
       "bufferView": 0,
       "componentType": 5125,
-      "count": 2880,
+      "count": 17664,
       "type": "SCALAR"
-    },
-    {
-      "bufferView": 4,
-      "componentType": 5126,
-      "count": 3001,
-      "max": [
-        100.0
-      ],
-      "min": [
-        0.0
-      ],
-      "type": "SCALAR"
-    },
-    {
-      "bufferView": 5,
-      "componentType": 5126,
-      "count": 3001,
-      "max": [
-        0.6514409780502319,
-        0.6087614297866821,
-        0.7933533191680908,
-        0.6087614297866821
-      ],
-      "min": [
-        -0.7933533191680908,
-        -0.42987239360809326,
-        -0.5602205991744995,
-        -0.4998682141304016
-      ],
-      "type": "VEC4"
-    }
-  ],
-  "animations": [
-    {
-      "channels": [
-        {
-          "sampler": 0,
-          "target": {
-            "node": 4,
-            "path": "rotation"
-          }
-        }
-      ],
-      "name": "Take 001",
-      "samplers": [
-        {
-          "input": 5,
-          "interpolation": "LINEAR",
-          "output": 6
-        }
-      ]
     }
   ],
   "asset": {
     "extras": {
-      "author": "Anthony Yanez (https://sketchfab.com/paulyanez)",
+      "author": "Akshat (https://sketchfab.com/shooter24994)",
       "license": "CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)",
-      "source": "https://sketchfab.com/3d-models/mercury-0a7a8958d49944f1aef057951daa8fd3",
+      "source": "https://sketchfab.com/3d-models/mercury-32347fa4ec1a4987b71f461a401d91c4",
       "title": "Mercury"
     },
-    "generator": "Sketchfab-12.66.0",
+    "generator": "Sketchfab-12.65.0",
     "version": "2.0"
   },
   "bufferViews": [
     {
       "buffer": 0,
-      "byteLength": 11520,
+      "byteLength": 70656,
       "name": "floatBufferViews",
       "target": 34963
     },
     {
       "buffer": 0,
-      "byteLength": 4472,
-      "byteOffset": 11520,
+      "byteLength": 25784,
+      "byteOffset": 70656,
       "byteStride": 8,
       "name": "floatBufferViews",
       "target": 34962
     },
     {
       "buffer": 0,
-      "byteLength": 13416,
-      "byteOffset": 15992,
+      "byteLength": 77352,
+      "byteOffset": 96440,
       "byteStride": 12,
       "name": "floatBufferViews",
       "target": 34962
-    },
-    {
-      "buffer": 0,
-      "byteLength": 8944,
-      "byteOffset": 29408,
-      "byteStride": 16,
-      "name": "floatBufferViews",
-      "target": 34962
-    },
-    {
-      "buffer": 0,
-      "byteLength": 12004,
-      "byteOffset": 38352,
-      "name": "floatBufferViews"
-    },
-    {
-      "buffer": 0,
-      "byteLength": 48016,
-      "byteOffset": 50356,
-      "byteStride": 16,
-      "name": "floatBufferViews"
     }
   ],
   "buffers": [
     {
-      "byteLength": 98372,
+      "byteLength": 173792,
       "uri": "scene.bin"
     }
   ],
+  "extensionsRequired": [
+    "KHR_materials_pbrSpecularGlossiness"
+  ],
+  "extensionsUsed": [
+    "KHR_materials_pbrSpecularGlossiness"
+  ],
   "images": [
     {
-      "uri": "textures/01_-_Default_baseColor.jpeg"
-    },
-    {
-      "uri": "textures/01_-_Default_normal.png"
+      "uri": "textures/Material.002_diffuse.jpeg"
     }
   ],
   "materials": [
     {
       "doubleSided": true,
-      "name": "01_-_Default",
-      "normalTexture": {
-        "index": 1
+      "extensions": {
+        "KHR_materials_pbrSpecularGlossiness": {
+          "diffuseFactor": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "diffuseTexture": {
+            "index": 0
+          },
+          "glossinessFactor": 0.19595917942265426,
+          "specularFactor": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
       },
-      "pbrMetallicRoughness": {
-        "baseColorTexture": {
-          "index": 0
-        },
-        "metallicFactor": 0.0992759146,
-        "roughnessFactor": 0.7970655488
-      }
+      "name": "Material.002"
     }
   ],
   "meshes": [
     {
-      "name": "Mercury_01 - Default_0",
+      "name": "Sphere_Material.002_0",
       "primitives": [
         {
           "attributes": {
             "NORMAL": 1,
             "POSITION": 0,
-            "TANGENT": 2,
-            "TEXCOORD_0": 3
+            "TEXCOORD_0": 2
           },
-          "indices": 4,
+          "indices": 3,
           "material": 0,
           "mode": 4
         }
@@ -273,40 +194,41 @@
         0.0,
         1.0
       ],
-      "name": "Mercury.FBX"
+      "name": "d866ec1ebc5242fc9442ea81b92de172.fbx"
     },
     {
       "children": [
         3
       ],
-      "name": "Object_2"
+      "name": "RootNode"
     },
     {
       "children": [
         4
       ],
-      "name": "RootNode"
-    },
-    {
-      "children": [
-        5
-      ],
-      "name": "Mercury",
-      "rotation": [
-        -0.7933533191680908,
+      "matrix": [
+        100.0,
         0.0,
         0.0,
-        0.6087614297866821
+        0.0,
+        0.0,
+        -1.629206793918314e-05,
+        -99.99999999999868,
+        0.0,
+        0.0,
+        99.99999999999868,
+        -1.629206793918314e-05,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0
       ],
-      "scale": [
-        0.09999999403953552,
-        0.09999999403953552,
-        0.09999999403953552
-      ]
+      "name": "Sphere"
     },
     {
       "mesh": 0,
-      "name": "Mercury_01 - Default_0"
+      "name": "Sphere_Material.002_0"
     }
   ],
   "samplers": [
@@ -330,10 +252,6 @@
     {
       "sampler": 0,
       "source": 0
-    },
-    {
-      "sampler": 0,
-      "source": 1
     }
   ]
 }
