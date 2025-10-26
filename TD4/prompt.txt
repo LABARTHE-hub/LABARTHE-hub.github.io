@@ -70,32 +70,15 @@ interactivité :
 
 
 
+finalement, je préfére que l'interactivité se fasse pas reconaissance vocale, modifie le code suivant en fonction
 
 
+rien ne s'affiche sur la simulation, pourtant rien ne s'affiche dans la console, aucun warn concerant un problème sur les modèles 3d
 
+pourquoi les boutons startVoice et stopVoice ne font rien ? peux-tu regler ce problème ?
 
+console web : Uncaught TypeError: Le spécificateur « three » était un spécificateur simple, mais n’a pas été remappé. Les spécificateurs relatifs de modules doivent commencer par « ./ », « ../ » ou « / ».
+peux tu regler ce probleme ?
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-peux tu corriger les erreurs de syntaxes d'indentations s'il y en a ?
-
-HTML
-
-CSS
-
-GESTURES.JS
-
-MAIN.JS
+ECRIS LA SUITE CHEZ TOI TROU DE BALLE
 
